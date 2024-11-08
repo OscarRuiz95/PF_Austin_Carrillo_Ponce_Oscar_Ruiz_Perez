@@ -11,12 +11,13 @@ public class Cliente {
     private static String usuario = "root"; // Usuario de la base de datos
     private static String contrasena = "Devastador95."; // Contraseña de la base de datos
 
-    //Menu
+    // Menu
     public static void main(String[] args) {
         boolean continuar = true;
 
         while (continuar) {
-            String[] opciones = {"Insertar Cliente", "Consultar Cliente", "Eliminar Cliente", "Actualizar Cliente", "Mostrar Todos los Clientes", "Salir"};
+            String[] opciones = { "Insertar Cliente", "Consultar Cliente", "Eliminar Cliente", "Actualizar Cliente",
+                    "Mostrar Todos los Clientes", "Salir" };
             String seleccion = (String) JOptionPane.showInputDialog(null, "Seleccione una opción:",
                     "Menu", JOptionPane.QUESTION_MESSAGE, null, opciones, opciones[0]);
 
@@ -46,7 +47,8 @@ public class Cliente {
             }
         }
     }
-    //Se ingresa a el cliente a la base de datos
+
+    // Se ingresa a el cliente a la base de datos
     private static void insertarCliente() {
         String cedula = JOptionPane.showInputDialog("Ingrese cédula:");
         String nombre1 = JOptionPane.showInputDialog("Ingrese nombre 1:");
@@ -72,7 +74,8 @@ public class Cliente {
             JOptionPane.showMessageDialog(null, "Error al insertar el cliente: " + e.getMessage());
         }
     }
-    //Permite consultar un cliente de la base de datos por medio de la cedula
+
+    // Permite consultar un cliente de la base de datos por medio de la cedula
     private static void consultarCliente() {
         String cedula = JOptionPane.showInputDialog("Ingrese la cédula del cliente a consultar:");
 
@@ -89,7 +92,8 @@ public class Cliente {
                 String apellido2 = resultado.getString("apellido2");
                 String telefono = resultado.getString("telefono");
 
-                String mensaje = String.format("Cédula: %s\nNombre 1: %s\nNombre 2: %s\nApellido 1: %s\nApellido 2: %s\nTeléfono: %s",
+                String mensaje = String.format(
+                        "Cédula: %s\nNombre 1: %s\nNombre 2: %s\nApellido 1: %s\nApellido 2: %s\nTeléfono: %s",
                         cedula, nombre1, nombre2, apellido1, apellido2, telefono);
                 JOptionPane.showMessageDialog(null, mensaje);
             } else {
@@ -101,7 +105,8 @@ public class Cliente {
             JOptionPane.showMessageDialog(null, "Error al consultar el cliente: " + e.getMessage());
         }
     }
-    //Permite eliminar un cliente de la base de datos por medio de la cedula
+
+    // Permite eliminar un cliente de la base de datos por medio de la cedula
     private static void eliminarCliente() {
         String cedula = JOptionPane.showInputDialog("Ingrese la cédula del cliente a eliminar:");
 
@@ -121,7 +126,8 @@ public class Cliente {
             JOptionPane.showMessageDialog(null, "Error al eliminar el cliente: " + e.getMessage());
         }
     }
-    //Permite actualizar un cliente de la base de datos por medio de la cedula
+
+    // Permite actualizar un cliente de la base de datos por medio de la cedula
     private static void actualizarCliente() {
         String cedula = JOptionPane.showInputDialog("Ingrese la cédula del cliente a actualizar:");
         String nombre1 = JOptionPane.showInputDialog("Ingrese el nuevo nombre 1:");
@@ -152,7 +158,8 @@ public class Cliente {
         }
     }
 
-private static void mostrarClientes() {
+    // Permite mostrar a todos los  clientes de la base de datos
+    private static void mostrarClientes() {
         try (Connection conexion = DriverManager.getConnection(url, usuario, contrasena)) {
             String consultaSQL = "{CALL mostrar_clientes()}";
             CallableStatement llamada = conexion.prepareCall(consultaSQL);
@@ -168,7 +175,8 @@ private static void mostrarClientes() {
                 String apellido2 = resultado.getString("apellido2");
                 String telefono = resultado.getString("telefono");
 
-                mensaje.append(String.format("Cédula: %s, Nombre 1: %s, Nombre 2: %s, Apellido 1: %s, Apellido 2: %s, Teléfono: %s\n",
+                mensaje.append(String.format(
+                        "Cédula: %s, Nombre 1: %s, Nombre 2: %s, Apellido 1: %s, Apellido 2: %s, Teléfono: %s\n",
                         cedula, nombre1, nombre2, apellido1, apellido2, telefono));
             }
 

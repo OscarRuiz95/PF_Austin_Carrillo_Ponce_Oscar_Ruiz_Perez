@@ -15,7 +15,8 @@ public class Colaborador {
         boolean continuar = true;
 
         while (continuar) {
-            String[] opciones = {"Insertar Colaborador", "Consultar Colaborador", "Eliminar Colaborador", "Actualizar Colaborador", "Mostrar Todos los Colaboradores", "Salir"};
+            String[] opciones = { "Insertar Colaborador", "Consultar Colaborador", "Eliminar Colaborador",
+                    "Actualizar Colaborador", "Mostrar Todos los Colaboradores", "Salir" };
             String seleccion = (String) JOptionPane.showInputDialog(null, "Seleccione una opción:",
                     "Menu", JOptionPane.QUESTION_MESSAGE, null, opciones, opciones[0]);
 
@@ -46,6 +47,7 @@ public class Colaborador {
         }
     }
 
+    // ingresa un colaborador
     private static void insertarColaborador() {
         String codigo = JOptionPane.showInputDialog("Ingrese código:");
         String nombre1 = JOptionPane.showInputDialog("Ingrese nombre 1:");
@@ -68,6 +70,7 @@ public class Colaborador {
         }
     }
 
+    // consulta un colaborador por medio de su codigo
     private static void consultarColaborador() {
         String codigo = JOptionPane.showInputDialog("Ingrese el código del colaborador a consultar:");
 
@@ -95,6 +98,7 @@ public class Colaborador {
         }
     }
 
+    // busca y elimina un colaborador por medio de su codigo
     private static void eliminarColaborador() {
         String codigo = JOptionPane.showInputDialog("Ingrese el código del colaborador a eliminar:");
 
@@ -115,6 +119,7 @@ public class Colaborador {
         }
     }
 
+    // permite acutualizar la informacion de un colaborador por medio de su codigo
     private static void actualizarColaborador() {
         String codigo = JOptionPane.showInputDialog("Ingrese el código del colaborador a actualizar:");
         String nombre1 = JOptionPane.showInputDialog("Ingrese el nuevo nombre 1:");
@@ -141,6 +146,7 @@ public class Colaborador {
         }
     }
 
+    // muestra a todos los colaboradores
     private static void mostrarColaboradores() {
         try (Connection conexion = DriverManager.getConnection(url, usuario, contrasena)) {
             String consultaSQL = "{CALL mostrar_colaboradores()}";
@@ -167,4 +173,3 @@ public class Colaborador {
         }
     }
 }
-
