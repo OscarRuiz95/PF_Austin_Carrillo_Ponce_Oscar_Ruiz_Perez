@@ -13,24 +13,36 @@ public class Cliente {
 
     //Menu
     public static void main(String[] args) {
-        String[] opciones = {"Insertar Cliente", "Consultar Cliente", "Eliminar Cliente", "Actualizar Cliente"};
-        String seleccion = (String) JOptionPane.showInputDialog(null, "Seleccione una opción:",
-                "Menu", JOptionPane.QUESTION_MESSAGE, null, opciones, opciones[0]);
+        boolean continuar = true;
 
-        if (seleccion != null) {
-            switch (seleccion) {
-                case "Insertar Cliente":
-                    insertarCliente();
-                    break;
-                case "Consultar Cliente":
-                    consultarCliente();
-                    break;
-                case "Eliminar Cliente":
-                    eliminarCliente();
-                    break;
-                case "Actualizar Cliente":
-                    actualizarCliente();
-                    break;
+        while (continuar) {
+            String[] opciones = {"Insertar Cliente", "Consultar Cliente", "Eliminar Cliente", "Actualizar Cliente", "Mostrar Todos los Clientes", "Salir"};
+            String seleccion = (String) JOptionPane.showInputDialog(null, "Seleccione una opción:",
+                    "Menu", JOptionPane.QUESTION_MESSAGE, null, opciones, opciones[0]);
+
+            if (seleccion != null) {
+                switch (seleccion) {
+                    case "Insertar Cliente":
+                        insertarCliente();
+                        break;
+                    case "Consultar Cliente":
+                        consultarCliente();
+                        break;
+                    case "Eliminar Cliente":
+                        eliminarCliente();
+                        break;
+                    case "Actualizar Cliente":
+                        actualizarCliente();
+                        break;
+                    case "Mostrar Todos los Clientes":
+                        mostrarClientes();
+                        break;
+                    case "Salir":
+                        continuar = false;
+                        break;
+                }
+            } else {
+                continuar = false; // Cerrar menú si el usuario cancela el cuadro de diálogo
             }
         }
     }
@@ -139,4 +151,33 @@ public class Cliente {
             JOptionPane.showMessageDialog(null, "Error al actualizar el cliente: " + e.getMessage());
         }
     }
+
+private static void mostrarClientes() {
+        try (Connection conexion = DriverManager.getConnection(url, usuario, contrasena)) {
+            String consultaSQL = "{CALL mostrar_clientes()}";
+            CallableStatement llamada = conexion.prepareCall(consultaSQL);
+
+            ResultSet resultado = llamada.executeQuery();
+            StringBuilder mensaje = new StringBuilder("Lista de Clientes:\n");
+
+            while (resultado.next()) {
+                String cedula = resultado.getString("cedula");
+                String nombre1 = resultado.getString("nombre1");
+                String nombre2 = resultado.getString("nombre2");
+                String apellido1 = resultado.getString("apellido1");
+                String apellido2 = resultado.getString("apellido2");
+                String telefono = resultado.getString("telefono");
+
+                mensaje.append(String.format("Cédula: %s, Nombre 1: %s, Nombre 2: %s, Apellido 1: %s, Apellido 2: %s, Teléfono: %s\n",
+                        cedula, nombre1, nombre2, apellido1, apellido2, telefono));
+            }
+
+            JOptionPane.showMessageDialog(null, mensaje.toString());
+            resultado.close();
+            llamada.close();
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Error al mostrar los clientes: " + e.getMessage());
+        }
+    }
+
 }
