@@ -39,7 +39,7 @@ public class Colaborador extends JFrame {
 
         // Configuración de campos y etiquetas
         JLabel lblBienvenidos = new JLabel("Bienvenido al Registro de Colaboradores");
-        lblBienvenidos.setBounds(150, 10, 300, 30);
+        lblBienvenidos.setBounds(150, 10, 400, 30);
         lblBienvenidos.setForeground(Color.WHITE);
         lblBienvenidos.setFont(new Font("Arial", Font.BOLD, 18));
         Principal.add(lblBienvenidos);
@@ -226,14 +226,4 @@ public class Colaborador extends JFrame {
         return DriverManager.getConnection(url, usuario, contrasena);
     }
 
-    public static void main(String[] args) {
-        EventQueue.invokeLater(() -> {
-            try {
-                Colaborador frame = new Colaborador();
-                frame.setVisible(true);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-    }
 }

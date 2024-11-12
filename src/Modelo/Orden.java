@@ -35,7 +35,7 @@ public class Orden extends JFrame {
 
         // Configuración de campos y etiquetas
         JLabel lblBienvenidos = new JLabel("Bienvenido al Registro de Órdenes");
-        lblBienvenidos.setBounds(180, 10, 300, 30);
+        lblBienvenidos.setBounds(180, 10, 400, 30);
         lblBienvenidos.setForeground(Color.WHITE);
         lblBienvenidos.setFont(new Font("Arial", Font.BOLD, 18));
         Principal.add(lblBienvenidos);
@@ -74,7 +74,7 @@ public class Orden extends JFrame {
         resultadoArea = new JTextArea();
         resultadoArea.setEditable(false);
         JScrollPane scrollPane = new JScrollPane(resultadoArea);
-        scrollPane.setBounds(50, 250, 500, 200);
+        scrollPane.setBounds(50, 290, 500, 200);
         Principal.add(scrollPane);
     }
 
@@ -232,14 +232,4 @@ public class Orden extends JFrame {
         }
     }
 
-    public static void main(String[] args) {
-        EventQueue.invokeLater(() -> {
-            try {
-                Orden frame = new Orden();
-                frame.setVisible(true);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-    }
 }

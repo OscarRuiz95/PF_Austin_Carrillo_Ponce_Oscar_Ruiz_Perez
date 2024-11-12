@@ -62,7 +62,7 @@ public class Producto extends JFrame {
         
         // Botón para regresar al Panel1
         JButton btnRegresar = crearBoton("Regresar", 370, 250, e -> regresarPanel1());
-        Principal.add(btnRegresar);
+        panel.add(btnRegresar);
 
         // Área de resultados
         resultadoArea = new JTextArea();
@@ -183,16 +183,5 @@ public class Producto extends JFrame {
         } catch (SQLException e) {
             resultadoArea.setText("Error al actualizar el producto: " + e.getMessage());
         }
-    }
-
-    public static void main(String[] args) {
-        EventQueue.invokeLater(() -> {
-            try {
-                Producto frame = new Producto();
-                frame.setVisible(true);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
     }
 }

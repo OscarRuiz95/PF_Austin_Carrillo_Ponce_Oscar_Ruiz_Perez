@@ -63,8 +63,8 @@ public class Paquete extends JFrame {
         panel.add(btnEliminar);
 
          // Botón para regresar al Panel1
-        JButton btnRegresar = crearBoton("Regresar", 370, 250, e -> regresarPanel1());
-        Principal.add(btnRegresar);
+        JButton btnRegresar = crearBoton("Regresar", 150, 210, e -> regresarPanel1());
+        panel.add(btnRegresar);
 
         // Área de resultados
         resultadoArea = new JTextArea();
@@ -92,6 +92,11 @@ public class Paquete extends JFrame {
         boton.setBounds(x, y, 180, 30);
         boton.addActionListener(action);
         return boton;
+    }
+    // Método para regresar al Panel1
+    private void regresarPanel1() {
+        new Panel1().setVisible(true); // Muestra el Panel1
+        this.dispose(); // Cierra el PanelCliente actual
     }
     private void crearPaquete() {
         String descripcion = descripcionField.getText();
@@ -204,16 +209,5 @@ public class Paquete extends JFrame {
         } catch (SQLException e) {
             resultadoArea.setText("Error al eliminar el paquete: " + e.getMessage());
         }
-    }
-
-    public static void main(String[] args) {
-        EventQueue.invokeLater(() -> {
-            try {
-                Paquete frame = new Paquete();
-                frame.setVisible(true);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
     }
 }
