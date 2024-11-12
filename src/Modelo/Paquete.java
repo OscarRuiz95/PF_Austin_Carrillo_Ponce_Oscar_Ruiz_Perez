@@ -1,3 +1,4 @@
+package Modelo;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.CallableStatement;
@@ -164,5 +165,10 @@ public class Paquete {
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Error al eliminar el paquete: " + e.getMessage());
         }
+    }
+
+    public void setVisible(boolean b) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setVisible'");
     }
 }

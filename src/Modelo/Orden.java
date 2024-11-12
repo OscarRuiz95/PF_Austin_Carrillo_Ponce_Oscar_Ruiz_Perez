@@ -1,3 +1,4 @@
+package Modelo;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.CallableStatement;
@@ -180,5 +181,10 @@ public class Orden {
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Error al actualizar la orden: " + e.getMessage());
         }
+    }
+
+    public void setVisible(boolean b) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setVisible'");
     }
 }

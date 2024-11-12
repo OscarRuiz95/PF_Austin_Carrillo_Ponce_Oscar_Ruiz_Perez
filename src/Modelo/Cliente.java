@@ -1,3 +1,4 @@
+package Modelo;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.CallableStatement;
@@ -11,45 +12,10 @@ public class Cliente {
     private static String usuario = "root"; // Usuario de la base de datos
     private static String contrasena = "Devastador95."; // Contraseña de la base de datos
 
-    // Menu
-    public static void main(String[] args) {
-        boolean continuar = true;
-
-        while (continuar) {
-            String[] opciones = { "Insertar Cliente", "Consultar Cliente", "Eliminar Cliente", "Actualizar Cliente",
-                    "Mostrar Todos los Clientes", "Salir" };
-            String seleccion = (String) JOptionPane.showInputDialog(null, "Seleccione una opción:",
-                    "Menu", JOptionPane.QUESTION_MESSAGE, null, opciones, opciones[0]);
-
-            if (seleccion != null) {
-                switch (seleccion) {
-                    case "Insertar Cliente":
-                        insertarCliente();
-                        break;
-                    case "Consultar Cliente":
-                        consultarCliente();
-                        break;
-                    case "Eliminar Cliente":
-                        eliminarCliente();
-                        break;
-                    case "Actualizar Cliente":
-                        actualizarCliente();
-                        break;
-                    case "Mostrar Todos los Clientes":
-                        mostrarClientes();
-                        break;
-                    case "Salir":
-                        continuar = false;
-                        break;
-                }
-            } else {
-                continuar = false; // Cerrar menú si el usuario cancela el cuadro de diálogo
-            }
-        }
-    }
+    
 
     // Se ingresa a el cliente a la base de datos
-    private static void insertarCliente() {
+   public void insertarCliente() {
         String cedula = JOptionPane.showInputDialog("Ingrese cédula:");
         String nombre1 = JOptionPane.showInputDialog("Ingrese nombre 1:");
         String nombre2 = JOptionPane.showInputDialog("Ingrese nombre 2:");
@@ -186,6 +152,11 @@ public class Cliente {
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Error al mostrar los clientes: " + e.getMessage());
         }
+    }
+
+    public void setVisible(boolean b) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setVisible'");
     }
 
 }
