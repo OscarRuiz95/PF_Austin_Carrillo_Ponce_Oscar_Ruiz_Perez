@@ -1,27 +1,104 @@
 package Modelo;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.CallableStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import javax.swing.JOptionPane;
 
-public class Cliente {
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.*;
 
-    private static String url = "jdbc:mysql://localhost:3306/verdureria"; // URL de la base de datos
-    private static String usuario = "root"; // Usuario de la base de datos
-    private static String contrasena = "Devastador95."; // Contraseña de la base de datos
+public class Cliente extends JFrame {
 
-    
+    private static final String url = "jdbc:mysql://localhost:3306/verdureria";
+    private static final String usuario = "root";
+    private static final String contrasena = "208240625";
 
-    // Se ingresa a el cliente a la base de datos
-   public void insertarCliente() {
-        String cedula = JOptionPane.showInputDialog("Ingrese cédula:");
-        String nombre1 = JOptionPane.showInputDialog("Ingrese nombre 1:");
-        String nombre2 = JOptionPane.showInputDialog("Ingrese nombre 2:");
-        String apellido1 = JOptionPane.showInputDialog("Ingrese apellido 1:");
-        String apellido2 = JOptionPane.showInputDialog("Ingrese apellido 2:");
-        String telefono = JOptionPane.showInputDialog("Ingrese teléfono:");
+    private JTextField cedulaField, nombre1Field, nombre2Field, apellido1Field, apellido2Field, telefonoField;
+    private JTextArea resultadoArea;
+    private JButton insertarButton, consultarButton, eliminarButton, actualizarButton;
+
+    public Cliente() {
+        setTitle("Gestión de Clientes");
+        setSize(500, 400);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+
+        JPanel inputPanel = new JPanel(new GridLayout(7, 2));
+        inputPanel.add(new JLabel("Cédula:"));
+        cedulaField = new JTextField();
+        inputPanel.add(cedulaField);
+
+        inputPanel.add(new JLabel("Nombre 1:"));
+        nombre1Field = new JTextField();
+        inputPanel.add(nombre1Field);
+
+        inputPanel.add(new JLabel("Nombre 2:"));
+        nombre2Field = new JTextField();
+        inputPanel.add(nombre2Field);
+
+        inputPanel.add(new JLabel("Apellido 1:"));
+        apellido1Field = new JTextField();
+        inputPanel.add(apellido1Field);
+
+        inputPanel.add(new JLabel("Apellido 2:"));
+        apellido2Field = new JTextField();
+        inputPanel.add(apellido2Field);
+
+        inputPanel.add(new JLabel("Teléfono:"));
+        telefonoField = new JTextField();
+        inputPanel.add(telefonoField);
+
+        insertarButton = new JButton("Insertar Cliente");
+        consultarButton = new JButton("Consultar Cliente");
+        eliminarButton = new JButton("Eliminar Cliente");
+        actualizarButton = new JButton("Actualizar Cliente");
+
+        JPanel buttonPanel = new JPanel(new GridLayout(1, 4));
+        buttonPanel.add(insertarButton);
+        buttonPanel.add(consultarButton);
+        buttonPanel.add(eliminarButton);
+        buttonPanel.add(actualizarButton);
+
+        resultadoArea = new JTextArea(8, 30);
+        resultadoArea.setEditable(false);
+        JScrollPane scrollPane = new JScrollPane(resultadoArea);
+
+        add(inputPanel, BorderLayout.NORTH);
+        add(buttonPanel, BorderLayout.CENTER);
+        add(scrollPane, BorderLayout.SOUTH);
+
+        // Action Listeners
+        insertarButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                insertarCliente();
+            }
+        });
+
+        consultarButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                consultarCliente();
+            }
+        });
+
+        eliminarButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                eliminarCliente();
+            }
+        });
+
+        actualizarButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                actualizarCliente();
+            }
+        });
+    }
+
+    private void insertarCliente() {
+        String cedula = cedulaField.getText();
+        String nombre1 = nombre1Field.getText();
+        String nombre2 = nombre2Field.getText();
+        String apellido1 = apellido1Field.getText();
+        String apellido2 = apellido2Field.getText();
+        String telefono = telefonoField.getText();
 
         try (Connection conexion = DriverManager.getConnection(url, usuario, contrasena)) {
             String consultaSQL = "{CALL insertar_cliente(?, ?, ?, ?, ?, ?)}";
@@ -34,16 +111,15 @@ public class Cliente {
             llamada.setString(6, telefono);
 
             llamada.executeUpdate();
-            JOptionPane.showMessageDialog(null, "Cliente insertado correctamente.");
+            resultadoArea.setText("Cliente insertado correctamente.");
             llamada.close();
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Error al insertar el cliente: " + e.getMessage());
+            resultadoArea.setText("Error al insertar el cliente: " + e.getMessage());
         }
     }
 
-    // Permite consultar un cliente de la base de datos por medio de la cedula
-    private static void consultarCliente() {
-        String cedula = JOptionPane.showInputDialog("Ingrese la cédula del cliente a consultar:");
+    private void consultarCliente() {
+        String cedula = cedulaField.getText();
 
         try (Connection conexion = DriverManager.getConnection(url, usuario, contrasena)) {
             String consultaSQL = "{CALL consultar_cliente(?)}";
@@ -52,29 +128,27 @@ public class Cliente {
 
             ResultSet resultado = llamada.executeQuery();
             if (resultado.next()) {
-                String nombre1 = resultado.getString("nombre1");
-                String nombre2 = resultado.getString("nombre2");
-                String apellido1 = resultado.getString("apellido1");
-                String apellido2 = resultado.getString("apellido2");
-                String telefono = resultado.getString("telefono");
-
                 String mensaje = String.format(
                         "Cédula: %s\nNombre 1: %s\nNombre 2: %s\nApellido 1: %s\nApellido 2: %s\nTeléfono: %s",
-                        cedula, nombre1, nombre2, apellido1, apellido2, telefono);
-                JOptionPane.showMessageDialog(null, mensaje);
+                        resultado.getString("cedula"),
+                        resultado.getString("nombre1"),
+                        resultado.getString("nombre2"),
+                        resultado.getString("apellido1"),
+                        resultado.getString("apellido2"),
+                        resultado.getString("telefono"));
+                resultadoArea.setText(mensaje);
             } else {
-                JOptionPane.showMessageDialog(null, "No se encontró un cliente con la cédula: " + cedula);
+                resultadoArea.setText("No se encontró un cliente con la cédula: " + cedula);
             }
             resultado.close();
             llamada.close();
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Error al consultar el cliente: " + e.getMessage());
+            resultadoArea.setText("Error al consultar el cliente: " + e.getMessage());
         }
     }
 
-    // Permite eliminar un cliente de la base de datos por medio de la cedula
-    private static void eliminarCliente() {
-        String cedula = JOptionPane.showInputDialog("Ingrese la cédula del cliente a eliminar:");
+    private void eliminarCliente() {
+        String cedula = cedulaField.getText();
 
         try (Connection conexion = DriverManager.getConnection(url, usuario, contrasena)) {
             String consultaSQL = "{CALL eliminar_cliente(?)}";
@@ -83,24 +157,23 @@ public class Cliente {
 
             int filasAfectadas = llamada.executeUpdate();
             if (filasAfectadas > 0) {
-                JOptionPane.showMessageDialog(null, "Cliente con cédula " + cedula + " eliminado correctamente.");
+                resultadoArea.setText("Cliente con cédula " + cedula + " eliminado correctamente.");
             } else {
-                JOptionPane.showMessageDialog(null, "No se encontró un cliente con la cédula: " + cedula);
+                resultadoArea.setText("No se encontró un cliente con la cédula: " + cedula);
             }
             llamada.close();
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Error al eliminar el cliente: " + e.getMessage());
+            resultadoArea.setText("Error al eliminar el cliente: " + e.getMessage());
         }
     }
 
-    // Permite actualizar un cliente de la base de datos por medio de la cedula
-    private static void actualizarCliente() {
-        String cedula = JOptionPane.showInputDialog("Ingrese la cédula del cliente a actualizar:");
-        String nombre1 = JOptionPane.showInputDialog("Ingrese el nuevo nombre 1:");
-        String nombre2 = JOptionPane.showInputDialog("Ingrese el nuevo nombre 2:");
-        String apellido1 = JOptionPane.showInputDialog("Ingrese el nuevo apellido 1:");
-        String apellido2 = JOptionPane.showInputDialog("Ingrese el nuevo apellido 2:");
-        String telefono = JOptionPane.showInputDialog("Ingrese el nuevo teléfono:");
+    private void actualizarCliente() {
+        String cedula = cedulaField.getText();
+        String nombre1 = nombre1Field.getText();
+        String nombre2 = nombre2Field.getText();
+        String apellido1 = apellido1Field.getText();
+        String apellido2 = apellido2Field.getText();
+        String telefono = telefonoField.getText();
 
         try (Connection conexion = DriverManager.getConnection(url, usuario, contrasena)) {
             String consultaSQL = "{CALL update_cliente(?, ?, ?, ?, ?, ?)}";
@@ -114,49 +187,20 @@ public class Cliente {
 
             int filasAfectadas = llamada.executeUpdate();
             if (filasAfectadas > 0) {
-                JOptionPane.showMessageDialog(null, "Cliente con cédula " + cedula + " actualizado correctamente.");
+                resultadoArea.setText("Cliente con cédula " + cedula + " actualizado correctamente.");
             } else {
-                JOptionPane.showMessageDialog(null, "No se encontró un cliente con la cédula: " + cedula);
+                resultadoArea.setText("No se encontró un cliente con la cédula: " + cedula);
             }
             llamada.close();
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Error al actualizar el cliente: " + e.getMessage());
+            resultadoArea.setText("Error al actualizar el cliente: " + e.getMessage());
         }
     }
 
-    // Permite mostrar a todos los  clientes de la base de datos
-    private static void mostrarClientes() {
-        try (Connection conexion = DriverManager.getConnection(url, usuario, contrasena)) {
-            String consultaSQL = "{CALL mostrar_clientes()}";
-            CallableStatement llamada = conexion.prepareCall(consultaSQL);
-
-            ResultSet resultado = llamada.executeQuery();
-            StringBuilder mensaje = new StringBuilder("Lista de Clientes:\n");
-
-            while (resultado.next()) {
-                String cedula = resultado.getString("cedula");
-                String nombre1 = resultado.getString("nombre1");
-                String nombre2 = resultado.getString("nombre2");
-                String apellido1 = resultado.getString("apellido1");
-                String apellido2 = resultado.getString("apellido2");
-                String telefono = resultado.getString("telefono");
-
-                mensaje.append(String.format(
-                        "Cédula: %s, Nombre 1: %s, Nombre 2: %s, Apellido 1: %s, Apellido 2: %s, Teléfono: %s\n",
-                        cedula, nombre1, nombre2, apellido1, apellido2, telefono));
-            }
-
-            JOptionPane.showMessageDialog(null, mensaje.toString());
-            resultado.close();
-            llamada.close();
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Error al mostrar los clientes: " + e.getMessage());
-        }
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            Cliente frame = new Cliente();
+            frame.setVisible(true);
+        });
     }
-
-    public void setVisible(boolean b) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setVisible'");
-    }
-
 }

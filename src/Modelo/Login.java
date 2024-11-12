@@ -16,12 +16,12 @@ public class Login extends JFrame implements ActionListener {
     private JPasswordField passwordField;
     private JButton loginButton;
 
-    // conexión a la base de datos
+    // Conexión a la base de datos
     private static String url = "jdbc:mysql://localhost:3306/verdureria"; // URL de la base de datos
     private static String usuario = "root"; // Usuario de la base de datos
-    private static String contrasena = "208240625."; // Contraseña de la base de datos
+    private static String contrasena = "208240625"; // Contraseña de la base de datos
 
-    // Tabla de contiene los usuarios en la base de datos
+    // Tabla que contiene los usuarios en la base de datos
     private static final String ADMIN_TABLE = "administradores"; 
 
     // Método para obtener la conexión a la base de datos
@@ -44,7 +44,7 @@ public class Login extends JFrame implements ActionListener {
         
         // Campo de texto para el usuario
         usuarioTextField = new JTextField();
-        usuarioTextField.setBorder(BorderFactory.createTitledBorder("Usuario"));
+        usuarioTextField.setBorder(BorderFactory.createTitledBorder("Nombre"));
         usuarioTextField.setFont(new Font("Arial", Font.PLAIN, 14));
         mainPanel.add(usuarioTextField);
 
@@ -77,25 +77,27 @@ public class Login extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         String usuario = usuarioTextField.getText();
         String password = new String(passwordField.getPassword());
-         // Autenticar el usuario y enviar mensaje 
+
+        // Autenticar el usuario y enviar mensaje 
         if (autenticarUsuario(usuario, password)) {
             JOptionPane.showMessageDialog(this, "¡Inicio de sesión exitoso!");
-            Panel1 pc = new Panel1();
+            Panel1 pc = new Panel1(); // Abre el panel del cliente al iniciar sesión
             pc.setVisible(true); 
             this.dispose();
         } else {
-            JOptionPane.showMessageDialog(this, "Usuario o contraseña incorrectos. Inténtalo de nuevo.");
+            JOptionPane.showMessageDialog(this, "Nombre o contraseña incorrectos. Inténtalo de nuevo.");
         }
     }
-      // Método para autenticar el usuario 
-    private boolean autenticarUsuario(String usuario, String password) {
+
+    // Método para autenticar el usuario 
+    private boolean autenticarUsuario(String nombre, String contraseña) {
         boolean autenticado = false;
-        String query = "SELECT * FROM " + ADMIN_TABLE + " WHERE login = ? AND Clave = ?"; 
+        String query = "SELECT * FROM " + ADMIN_TABLE + " WHERE nombre = ? AND contraseña = ?"; 
 
         try (Connection connection = getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setString(1, usuario);
-            preparedStatement.setString(2, password);
+            preparedStatement.setString(1, nombre);
+            preparedStatement.setString(2, contraseña);
             ResultSet resultSet = preparedStatement.executeQuery();
 
             if (resultSet.next()) {
