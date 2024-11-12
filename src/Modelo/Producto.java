@@ -1,53 +1,106 @@
 package Modelo;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.CallableStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import javax.swing.JOptionPane;
 
-public class Producto {
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+
+import Controlador.Panel1;
+
+import java.awt.*;
+import java.awt.event.ActionListener;
+import java.security.Principal;
+import java.sql.*;
+
+public class Producto extends JFrame {
 
     private static String url = "jdbc:mysql://localhost:3306/verdureria";
     private static String usuario = "root";
-    private static String contrasena = "Devastador95.";
+    private static String contrasena = "208240625";
 
-    public static void main(String[] args) {
-        boolean continuar = true;
+    private JPanel panel;
+    private JTextField idProductoField, nombreField, cantidadField;
+    private JTextArea resultadoArea;
 
-        while (continuar) {
-            String[] opciones = {"Insertar Producto", "Consultar Productos", "Eliminar Producto", "Actualizar Producto", "Salir"};
-            String seleccion = (String) JOptionPane.showInputDialog(null, "Seleccione una opción:",
-                    "Menu", JOptionPane.QUESTION_MESSAGE, null, opciones, opciones[0]);
+    public Producto() {
+        setTitle("Gestión de Productos");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setBounds(100, 100, 600, 500);
 
-            if (seleccion != null) {
-                switch (seleccion) {
-                    case "Insertar Producto":
-                        insertarProducto();
-                        break;
-                    case "Consultar Productos":
-                        consultarProductos();
-                        break;
-                    case "Eliminar Producto":
-                        eliminarProducto();
-                        break;
-                    case "Actualizar Producto":
-                        actualizarProducto();
-                        break;
-                    case "Salir":
-                        continuar = false;
-                        break;
-                }
-            } else {
-                continuar = false;
-            }
-        }
+        panel = new JPanel();
+        panel.setBackground(new Color(46, 46, 46));
+        panel.setBorder(new EmptyBorder(5, 5, 5, 5));
+        setContentPane(panel);
+        panel.setLayout(null);
+
+        setLocationRelativeTo(null); // Centrar ventana
+
+        // Título
+        JLabel lblBienvenidos = new JLabel("Gestión de Productos");
+        lblBienvenidos.setForeground(Color.WHITE);
+        lblBienvenidos.setFont(new Font("Arial", Font.BOLD, 18));
+        lblBienvenidos.setBounds(200, 10, 200, 30);
+        panel.add(lblBienvenidos);
+
+        // Campos de entrada
+        idProductoField = new JTextField();
+        nombreField = new JTextField();
+        cantidadField = new JTextField();
+
+        agregarLabelYCampo("ID Producto:", idProductoField, 50);
+        agregarLabelYCampo("Nombre del Producto:", nombreField, 90);
+        agregarLabelYCampo("Cantidad:", cantidadField, 130);
+
+        // Botones de acción
+        JButton btnInsertar = crearBoton("Insertar Producto", 370, 50, e -> insertarProducto());
+        JButton btnConsultar = crearBoton("Consultar Productos", 370, 90, e -> consultarProductos());
+        JButton btnActualizar = crearBoton("Actualizar Producto", 370, 130, e -> actualizarProducto());
+        JButton btnEliminar = crearBoton("Eliminar Producto", 370, 170, e -> eliminarProducto());
+
+        panel.add(btnInsertar);
+        panel.add(btnConsultar);
+        panel.add(btnActualizar);
+        panel.add(btnEliminar);
+        
+        // Botón para regresar al Panel1
+        JButton btnRegresar = crearBoton("Regresar", 370, 250, e -> regresarPanel1());
+        Principal.add(btnRegresar);
+
+        // Área de resultados
+        resultadoArea = new JTextArea();
+        resultadoArea.setEditable(false);
+        JScrollPane scrollPane = new JScrollPane(resultadoArea);
+        scrollPane.setBounds(50, 250, 500, 200);
+        panel.add(scrollPane);
     }
 
-    private static void insertarProducto() {
-        String idProducto = JOptionPane.showInputDialog("Ingrese ID del producto:");
-        String nombre = JOptionPane.showInputDialog("Ingrese nombre del producto:");
-        int cantidad = Integer.parseInt(JOptionPane.showInputDialog("Ingrese cantidad del producto:"));
+    private void agregarLabelYCampo(String labelText, JTextField textField, int y) {
+        JLabel label = new JLabel(labelText);
+        label.setForeground(Color.WHITE);
+        label.setBounds(50, y, 160, 25);
+        panel.add(label);
+
+        textField.setBounds(210, y, 150, 25);
+        panel.add(textField);
+    }
+
+    private JButton crearBoton(String texto, int x, int y, ActionListener action) {
+        JButton boton = new JButton(texto);
+        boton.setBackground(new Color(38, 81, 255));
+        boton.setForeground(Color.WHITE);
+        boton.setFont(new Font("Arial", Font.BOLD, 12));
+        boton.setBounds(x, y, 180, 30);
+        boton.addActionListener(action);
+        return boton;
+    }
+    
+    // Método para regresar al Panel1
+    private void regresarPanel1() {
+        new Panel1().setVisible(true); // Muestra el Panel1
+        this.dispose(); // Cierra el PanelCliente actual
+    }
+    private void insertarProducto() {
+        String idProducto = idProductoField.getText();
+        String nombre = nombreField.getText();
+        int cantidad = Integer.parseInt(cantidadField.getText());
 
         try (Connection conexion = DriverManager.getConnection(url, usuario, contrasena)) {
             String consultaSQL = "{CALL insertar_producto(?, ?, ?)}";
@@ -57,14 +110,14 @@ public class Producto {
             llamada.setInt(3, cantidad);
 
             llamada.executeUpdate();
-            JOptionPane.showMessageDialog(null, "Producto insertado correctamente.");
+            resultadoArea.setText("Producto insertado correctamente.");
             llamada.close();
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Error al insertar el producto: " + e.getMessage());
+            resultadoArea.setText("Error al insertar el producto: " + e.getMessage());
         }
     }
 
-    private static void consultarProductos() {
+    private void consultarProductos() {
         try (Connection conexion = DriverManager.getConnection(url, usuario, contrasena)) {
             String consultaSQL = "{CALL consultar_productos()}";
             CallableStatement llamada = conexion.prepareCall(consultaSQL);
@@ -77,20 +130,19 @@ public class Producto {
                 String nombre = resultado.getString("nombre");
                 int cantidad = resultado.getInt("cantidad");
 
-                mensaje.append(String.format("ID: %s, Nombre: %s, Cantidad: %d\n",
-                        idProducto, nombre, cantidad));
+                mensaje.append(String.format("ID: %s, Nombre: %s, Cantidad: %d\n", idProducto, nombre, cantidad));
             }
 
-            JOptionPane.showMessageDialog(null, mensaje.toString());
+            resultadoArea.setText(mensaje.toString());
             resultado.close();
             llamada.close();
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Error al consultar los productos: " + e.getMessage());
+            resultadoArea.setText("Error al consultar los productos: " + e.getMessage());
         }
     }
 
-    private static void eliminarProducto() {
-        String idProducto = JOptionPane.showInputDialog("Ingrese el ID del producto a eliminar:");
+    private void eliminarProducto() {
+        String idProducto = idProductoField.getText();
 
         try (Connection conexion = DriverManager.getConnection(url, usuario, contrasena)) {
             String consultaSQL = "{CALL eliminar_producto(?)}";
@@ -99,20 +151,20 @@ public class Producto {
 
             int filasAfectadas = llamada.executeUpdate();
             if (filasAfectadas > 0) {
-                JOptionPane.showMessageDialog(null, "Producto con ID " + idProducto + " eliminado correctamente.");
+                resultadoArea.setText("Producto con ID " + idProducto + " eliminado correctamente.");
             } else {
-                JOptionPane.showMessageDialog(null, "No se encontró un producto con el ID: " + idProducto);
+                resultadoArea.setText("No se encontró un producto con el ID: " + idProducto);
             }
             llamada.close();
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Error al eliminar el producto: " + e.getMessage());
+            resultadoArea.setText("Error al eliminar el producto: " + e.getMessage());
         }
     }
 
-    private static void actualizarProducto() {
-        String idProducto = JOptionPane.showInputDialog("Ingrese el ID del producto a actualizar:");
-        String nombre = JOptionPane.showInputDialog("Ingrese el nuevo nombre del producto:");
-        int cantidad = Integer.parseInt(JOptionPane.showInputDialog("Ingrese la nueva cantidad del producto:"));
+    private void actualizarProducto() {
+        String idProducto = idProductoField.getText();
+        String nombre = nombreField.getText();
+        int cantidad = Integer.parseInt(cantidadField.getText());
 
         try (Connection conexion = DriverManager.getConnection(url, usuario, contrasena)) {
             String consultaSQL = "{CALL update_producto(?, ?, ?)}";
@@ -123,13 +175,24 @@ public class Producto {
 
             int filasAfectadas = llamada.executeUpdate();
             if (filasAfectadas > 0) {
-                JOptionPane.showMessageDialog(null, "Producto con ID " + idProducto + " actualizado correctamente.");
+                resultadoArea.setText("Producto con ID " + idProducto + " actualizado correctamente.");
             } else {
-                JOptionPane.showMessageDialog(null, "No se encontró un producto con el ID: " + idProducto);
+                resultadoArea.setText("No se encontró un producto con el ID: " + idProducto);
             }
             llamada.close();
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Error al actualizar el producto: " + e.getMessage());
+            resultadoArea.setText("Error al actualizar el producto: " + e.getMessage());
         }
+    }
+
+    public static void main(String[] args) {
+        EventQueue.invokeLater(() -> {
+            try {
+                Producto frame = new Producto();
+                frame.setVisible(true);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 }

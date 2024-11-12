@@ -1,57 +1,101 @@
 package Modelo;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.CallableStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import javax.swing.JOptionPane;
 
-public class Paquete {
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+
+import Controlador.Panel1;
+
+import java.awt.*;
+import java.awt.event.ActionListener;
+import java.security.Principal;
+import java.sql.*;
+
+public class Paquete extends JFrame {
 
     private static String url = "jdbc:mysql://localhost:3306/verdureria";
     private static String usuario = "root";
-    private static String contrasena = "Devastrador95.";
+    private static String contrasena = "208240625";
 
-    public static void main(String[] args) {
-        boolean continuar = true;
+    private JPanel panel;
+    private JTextField descripcionField, idProductoField, idPaqueteField;
+    private JTextArea resultadoArea;
 
-        while (continuar) {
-            String[] opciones = { "Crear Paquete", "Consultar Paquetes", "Consultar Paquete Específico",
-                    "Actualizar Paquete", "Eliminar Paquete", "Salir" };
-            String seleccion = (String) JOptionPane.showInputDialog(null, "Seleccione una opción:",
-                    "Menú Paquetes", JOptionPane.QUESTION_MESSAGE, null, opciones, opciones[0]);
+    public Paquete() {
+        setTitle("Gestión de Paquetes");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setBounds(100, 100, 600, 500);
 
-            if (seleccion != null) {
-                switch (seleccion) {
-                    case "Crear Paquete":
-                        crearPaquete();
-                        break;
-                    case "Consultar Paquetes":
-                        consultarPaquetes();
-                        break;
-                    case "Consultar Paquete":
-                        consultarPaquete();
-                        break;
-                    case "Actualizar Paquete":
-                        actualizarPaquete();
-                        break;
-                    case "Eliminar Paquete":
-                        eliminarPaquete();
-                        break;
-                    case "Salir":
-                        continuar = false;
-                        break;
-                }
-            } else {
-                continuar = false;
-            }
-        }
+        panel = new JPanel();
+        panel.setBackground(new Color(46, 46, 46));
+        panel.setBorder(new EmptyBorder(5, 5, 5, 5));
+        setContentPane(panel);
+        panel.setLayout(null);
+
+        setLocationRelativeTo(null); // Centrar ventana
+
+        // Título
+        JLabel lblBienvenidos = new JLabel("Gestión de Paquetes");
+        lblBienvenidos.setForeground(Color.WHITE);
+        lblBienvenidos.setFont(new Font("Arial", Font.BOLD, 18));
+        lblBienvenidos.setBounds(200, 10, 200, 30);
+        panel.add(lblBienvenidos);
+
+        // Campos de entrada
+        descripcionField = new JTextField();
+        idProductoField = new JTextField();
+        idPaqueteField = new JTextField();
+
+        agregarLabelYCampo("Descripción del Paquete:", descripcionField, 50);
+        agregarLabelYCampo("ID Producto:", idProductoField, 90);
+        agregarLabelYCampo("ID Paquete:", idPaqueteField, 130);
+
+        // Botones de acción
+        JButton btnCrear = crearBoton("Crear Paquete", 370, 50, e -> crearPaquete());
+        JButton btnConsultar = crearBoton("Consultar Paquetes", 370, 90, e -> consultarPaquetes());
+        JButton btnConsultarEspecifico = crearBoton("Consultar Paquete Específico", 370, 130, e -> consultarPaquete());
+        JButton btnActualizar = crearBoton("Actualizar Paquete", 370, 170, e -> actualizarPaquete());
+        JButton btnEliminar = crearBoton("Eliminar Paquete", 370, 210, e -> eliminarPaquete());
+
+        panel.add(btnCrear);
+        panel.add(btnConsultar);
+        panel.add(btnConsultarEspecifico);
+        panel.add(btnActualizar);
+        panel.add(btnEliminar);
+
+         // Botón para regresar al Panel1
+        JButton btnRegresar = crearBoton("Regresar", 370, 250, e -> regresarPanel1());
+        Principal.add(btnRegresar);
+
+        // Área de resultados
+        resultadoArea = new JTextArea();
+        resultadoArea.setEditable(false);
+        JScrollPane scrollPane = new JScrollPane(resultadoArea);
+        scrollPane.setBounds(50, 250, 500, 200);
+        panel.add(scrollPane);
     }
 
-    // creacion de paquete
-    private static void crearPaquete() {
-        String descripcion = JOptionPane.showInputDialog("Ingrese la descripción del paquete:");
-        int idProducto = Integer.parseInt(JOptionPane.showInputDialog("Ingrese el ID del producto:"));
+    private void agregarLabelYCampo(String labelText, JTextField textField, int y) {
+        JLabel label = new JLabel(labelText);
+        label.setForeground(Color.WHITE);
+        label.setBounds(50, y, 160, 25);
+        panel.add(label);
+
+        textField.setBounds(210, y, 150, 25);
+        panel.add(textField);
+    }
+    
+    private JButton crearBoton(String texto, int x, int y, ActionListener action) {
+        JButton boton = new JButton(texto);
+        boton.setBackground(new Color(38, 81, 255));
+        boton.setForeground(Color.WHITE);
+        boton.setFont(new Font("Arial", Font.BOLD, 12));
+        boton.setBounds(x, y, 180, 30);
+        boton.addActionListener(action);
+        return boton;
+    }
+    private void crearPaquete() {
+        String descripcion = descripcionField.getText();
+        int idProducto = Integer.parseInt(idProductoField.getText());
 
         try (Connection conexion = DriverManager.getConnection(url, usuario, contrasena)) {
             String consultaSQL = "{CALL crear_paquete(?, ?)}";
@@ -60,15 +104,14 @@ public class Paquete {
             llamada.setInt(2, idProducto);
 
             llamada.executeUpdate();
-            JOptionPane.showMessageDialog(null, "Paquete creado correctamente.");
+            resultadoArea.setText("Paquete creado correctamente.");
             llamada.close();
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Error al crear el paquete: " + e.getMessage());
+            resultadoArea.setText("Error al crear el paquete: " + e.getMessage());
         }
     }
 
-    // consulta todos los paquetes
-    private static void consultarPaquetes() {
+    private void consultarPaquetes() {
         try (Connection conexion = DriverManager.getConnection(url, usuario, contrasena)) {
             String consultaSQL = "{CALL consultar_paquetes()}";
             CallableStatement llamada = conexion.prepareCall(consultaSQL);
@@ -81,21 +124,19 @@ public class Paquete {
                 String descripcion = resultado.getString("descripcion");
                 int idProducto = resultado.getInt("id_producto");
 
-                mensaje.append(String.format("ID Paquete: %d, Descripción: %s, ID Producto: %d\n",
-                        idPaquete, descripcion, idProducto));
+                mensaje.append(String.format("ID Paquete: %d, Descripción: %s, ID Producto: %d\n", idPaquete, descripcion, idProducto));
             }
 
-            JOptionPane.showMessageDialog(null, mensaje.toString());
+            resultadoArea.setText(mensaje.toString());
             resultado.close();
             llamada.close();
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Error al consultar los paquetes: " + e.getMessage());
+            resultadoArea.setText("Error al consultar los paquetes: " + e.getMessage());
         }
     }
 
-    // busca un paquete y lo muestra
-    private static void consultarPaquete() {
-        int idPaquete = Integer.parseInt(JOptionPane.showInputDialog("Ingrese el ID del paquete a consultar:"));
+    private void consultarPaquete() {
+        int idPaquete = Integer.parseInt(idPaqueteField.getText());
 
         try (Connection conexion = DriverManager.getConnection(url, usuario, contrasena)) {
             String consultaSQL = "{CALL consultar_paquetes(?)}";
@@ -109,23 +150,22 @@ public class Paquete {
                         resultado.getInt("id_paquete"),
                         resultado.getString("descripcion"),
                         resultado.getInt("id_producto"));
-                JOptionPane.showMessageDialog(null, mensaje);
+                resultadoArea.setText(mensaje);
             } else {
-                JOptionPane.showMessageDialog(null, "No se encontró un paquete con el ID: " + idPaquete);
+                resultadoArea.setText("No se encontró un paquete con el ID: " + idPaquete);
             }
 
             resultado.close();
             llamada.close();
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Error al consultar el paquete: " + e.getMessage());
+            resultadoArea.setText("Error al consultar el paquete: " + e.getMessage());
         }
     }
 
-    // permite actualizar un paquete
-    private static void actualizarPaquete() {
-        int idPaquete = Integer.parseInt(JOptionPane.showInputDialog("Ingrese el ID del paquete a actualizar:"));
-        String descripcion = JOptionPane.showInputDialog("Ingrese la nueva descripción:");
-        int idProducto = Integer.parseInt(JOptionPane.showInputDialog("Ingrese el nuevo ID del producto:"));
+    private void actualizarPaquete() {
+        int idPaquete = Integer.parseInt(idPaqueteField.getText());
+        String descripcion = descripcionField.getText();
+        int idProducto = Integer.parseInt(idProductoField.getText());
 
         try (Connection conexion = DriverManager.getConnection(url, usuario, contrasena)) {
             String consultaSQL = "{CALL update_paquete(?, ?, ?)}";
@@ -136,19 +176,18 @@ public class Paquete {
 
             int filasAfectadas = llamada.executeUpdate();
             if (filasAfectadas > 0) {
-                JOptionPane.showMessageDialog(null, "Paquete actualizado correctamente.");
+                resultadoArea.setText("Paquete actualizado correctamente.");
             } else {
-                JOptionPane.showMessageDialog(null, "No se encontró un paquete con el ID: " + idPaquete);
+                resultadoArea.setText("No se encontró un paquete con el ID: " + idPaquete);
             }
             llamada.close();
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Error al actualizar el paquete: " + e.getMessage());
+            resultadoArea.setText("Error al actualizar el paquete: " + e.getMessage());
         }
     }
 
-    // busca y elimina un paquete
-    private static void eliminarPaquete() {
-        int idPaquete = Integer.parseInt(JOptionPane.showInputDialog("Ingrese el ID del paquete a eliminar:"));
+    private void eliminarPaquete() {
+        int idPaquete = Integer.parseInt(idPaqueteField.getText());
 
         try (Connection conexion = DriverManager.getConnection(url, usuario, contrasena)) {
             String consultaSQL = "{CALL eliminar_paquete(?)}";
@@ -157,18 +196,24 @@ public class Paquete {
 
             int filasAfectadas = llamada.executeUpdate();
             if (filasAfectadas > 0) {
-                JOptionPane.showMessageDialog(null, "Paquete eliminado correctamente.");
+                resultadoArea.setText("Paquete eliminado correctamente.");
             } else {
-                JOptionPane.showMessageDialog(null, "No se encontró un paquete con el ID: " + idPaquete);
+                resultadoArea.setText("No se encontró un paquete con el ID: " + idPaquete);
             }
             llamada.close();
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Error al eliminar el paquete: " + e.getMessage());
+            resultadoArea.setText("Error al eliminar el paquete: " + e.getMessage());
         }
     }
 
-    public void setVisible(boolean b) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setVisible'");
+    public static void main(String[] args) {
+        EventQueue.invokeLater(() -> {
+            try {
+                Paquete frame = new Paquete();
+                frame.setVisible(true);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 }

@@ -1,59 +1,112 @@
 package Modelo;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.CallableStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import javax.swing.JOptionPane;
 
-public class Orden {
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 
-    private static String url = "jdbc:mysql://localhost:3306/verdureria";
-    private static String usuario = "root";
-    private static String contrasena = "Devastador95.";
+import Controlador.Panel1;
 
-    public static void main(String[] args) {
-        boolean continuar = true;
+import java.awt.*;
+import java.awt.event.ActionListener;
+import java.sql.*;
 
-        while (continuar) {
-            String[] opciones = { "Ingresar Orden", "Consultar Órdenes", "Consultar Orden Específica", "Eliminar Orden",
-                    "Actualizar Orden", "Salir" };
-            String seleccion = (String) JOptionPane.showInputDialog(null, "Seleccione una opción:",
-                    "Menú", JOptionPane.QUESTION_MESSAGE, null, opciones, opciones[0]);
+public class Orden extends JFrame {
 
-            if (seleccion != null) {
-                switch (seleccion) {
-                    case "Ingresar Orden":
-                        ingresarOrden();
-                        break;
-                    case "Consultar Órdenes":
-                        consultarOrdenes();
-                        break;
-                    case "Buscar Orden":
-                        consultarOrden();
-                        break;
-                    case "Eliminar Orden":
-                        eliminarOrden();
-                        break;
-                    case "Actualizar Orden":
-                        actualizarOrden();
-                        break;
-                    case "Salir":
-                        continuar = false;
-                        break;
-                }
-            } else {
-                continuar = false;
-            }
-        }
+    private static String url = "jdbc:mysql://localhost:3306/verdureria"; // URL de la base de datos
+    private static String usuario = "root"; // Usuario de la base de datos
+    private static String contrasena = "208240625"; // Contraseña de la base de datos
+
+    private JPanel Principal;
+    private JTextField numeroOrdenField, cedulaField, codigoField, idPaqueteField, precioField;
+    private JTextArea resultadoArea;
+
+    public Orden() {
+        setTitle("Gestión de Órdenes");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setBounds(100, 100, 600, 500);
+
+        Principal = new JPanel();
+        Principal.setBackground(new Color(46, 46, 46));
+        Principal.setBorder(new EmptyBorder(5, 5, 5, 5));
+        setContentPane(Principal);
+        Principal.setLayout(null);
+
+        // Centrar la ventana en la pantalla
+        setLocationRelativeTo(null);
+
+        // Configuración de campos y etiquetas
+        JLabel lblBienvenidos = new JLabel("Bienvenido al Registro de Órdenes");
+        lblBienvenidos.setBounds(180, 10, 300, 30);
+        lblBienvenidos.setForeground(Color.WHITE);
+        lblBienvenidos.setFont(new Font("Arial", Font.BOLD, 18));
+        Principal.add(lblBienvenidos);
+
+        // Campos de texto y etiquetas
+        numeroOrdenField = new JTextField();
+        cedulaField = new JTextField();
+        codigoField = new JTextField();
+        idPaqueteField = new JTextField();
+        precioField = new JTextField();
+
+        agregarLabelYCampo("Número Orden:", numeroOrdenField, 50);
+        agregarLabelYCampo("Cédula:", cedulaField, 90);
+        agregarLabelYCampo("Código Colaborador:", codigoField, 130);
+        agregarLabelYCampo("ID Paquete:", idPaqueteField, 170);
+        agregarLabelYCampo("Precio:", precioField, 210);
+
+        // Botones de acción
+        JButton btnIngresar = crearBoton("Ingresar Orden", 370, 50, e -> ingresarOrden());
+        JButton btnConsultar = crearBoton("Consultar Orden", 370, 90, e -> consultarOrden());
+        JButton btnEliminar = crearBoton("Eliminar Orden", 370, 130, e -> eliminarOrden());
+        JButton btnActualizar = crearBoton("Actualizar Orden", 370, 170, e -> actualizarOrden());
+        JButton btnMostrar = crearBoton("Mostrar Órdenes", 370, 210, e -> mostrarOrdenes());
+
+        Principal.add(btnIngresar);
+        Principal.add(btnConsultar);
+        Principal.add(btnEliminar);
+        Principal.add(btnActualizar);
+        Principal.add(btnMostrar);
+
+        // Botón para regresar al Panel1
+        JButton btnRegresar = crearBoton("Regresar", 370, 250, e -> regresarPanel1());
+        Principal.add(btnRegresar);
+
+        // Área de resultados
+        resultadoArea = new JTextArea();
+        resultadoArea.setEditable(false);
+        JScrollPane scrollPane = new JScrollPane(resultadoArea);
+        scrollPane.setBounds(50, 250, 500, 200);
+        Principal.add(scrollPane);
     }
 
-    // permite ingresar una orden
-    private static void ingresarOrden() {
-        String cedula = JOptionPane.showInputDialog("Ingrese la cédula del cliente:");
-        String codigo = JOptionPane.showInputDialog("Ingrese el código del colaborador:");
-        int idPaquete = Integer.parseInt(JOptionPane.showInputDialog("Ingrese ID del paquete:"));
-        String precio = JOptionPane.showInputDialog("Ingrese el precio:");
+    private JButton crearBoton(String texto, int x, int y, ActionListener action) {
+        JButton boton = new JButton(texto);
+        boton.setBackground(new Color(38, 81, 255));
+        boton.setForeground(Color.WHITE);
+        boton.setFont(new Font("Arial", Font.BOLD, 12));
+        boton.setBounds(x, y, 150, 30);
+        boton.addActionListener(action);
+        return boton;
+    }
+
+    private void agregarLabelYCampo(String labelText, JTextField textField, int y) {
+        JLabel label = new JLabel(labelText);
+        label.setForeground(Color.WHITE);
+        label.setBounds(50, y, 120, 25);
+        Principal.add(label);
+
+        textField.setBounds(180, y, 150, 25);
+        Principal.add(textField);
+    }
+    // Método para regresar al Panel1
+    private void regresarPanel1() {
+        new Panel1().setVisible(true); // Muestra el Panel1
+        this.dispose(); // Cierra el PanelCliente actual
+    }
+    private void ingresarOrden() {
+        String cedula = cedulaField.getText();
+        String codigo = codigoField.getText();
+        int idPaquete = Integer.parseInt(idPaqueteField.getText());
+        String precio = precioField.getText();
 
         try (Connection conexion = DriverManager.getConnection(url, usuario, contrasena)) {
             String consultaSQL = "{CALL ingresar_orden(?, ?, ?, ?)}";
@@ -64,47 +117,15 @@ public class Orden {
             llamada.setString(4, precio);
 
             llamada.executeUpdate();
-            JOptionPane.showMessageDialog(null, "Orden ingresada correctamente.");
+            resultadoArea.setText("Orden ingresada correctamente.");
             llamada.close();
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Error al ingresar la orden: " + e.getMessage());
+            resultadoArea.setText("Error al ingresar la orden: " + e.getMessage());
         }
     }
 
-    // muestra todas las ordenes
-    private static void consultarOrdenes() {
-        try (Connection conexion = DriverManager.getConnection(url, usuario, contrasena)) {
-            String consultaSQL = "{CALL mostrar_ordenes()}";
-            CallableStatement llamada = conexion.prepareCall(consultaSQL);
-
-            ResultSet resultado = llamada.executeQuery();
-            StringBuilder mensaje = new StringBuilder("Lista de Órdenes:\n");
-
-            while (resultado.next()) {
-                int numeroOrden = resultado.getInt("numero_orden");
-                String cedula = resultado.getString("cedula");
-                String codigo = resultado.getString("codigo");
-                int idPaquete = resultado.getInt("id_paquete");
-                String precio = resultado.getString("precio");
-                String fecha = resultado.getString("fecha");
-                String hora = resultado.getString("hora");
-
-                mensaje.append(String.format(
-                        "Número Orden: %d, Cédula: %s, Código: %s, ID Paquete: %d, Precio: %s, Fecha: %s, Hora: %s\n",
-                        numeroOrden, cedula, codigo, idPaquete, precio, fecha, hora));
-            }
-
-            JOptionPane.showMessageDialog(null, mensaje.toString());
-            resultado.close();
-            llamada.close();
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Error al consultar las órdenes: " + e.getMessage());
-        }
-    }
-
-    // busca una orden en especifico
-    private static void consultarOrden() {
-        int numeroOrden = Integer.parseInt(JOptionPane.showInputDialog("Ingrese el número de la orden a consultar:"));
+    private void consultarOrden() {
+        int numeroOrden = Integer.parseInt(numeroOrdenField.getText());
 
         try (Connection conexion = DriverManager.getConnection(url, usuario, contrasena)) {
             String consultaSQL = "{CALL consultar_orden(?)}";
@@ -122,21 +143,20 @@ public class Orden {
                         resultado.getString("precio"),
                         resultado.getString("fecha"),
                         resultado.getString("hora"));
-                JOptionPane.showMessageDialog(null, mensaje);
+                resultadoArea.setText(mensaje);
             } else {
-                JOptionPane.showMessageDialog(null, "No se encontró una orden con el número: " + numeroOrden);
+                resultadoArea.setText("No se encontró una orden con el número: " + numeroOrden);
             }
 
             resultado.close();
             llamada.close();
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Error al consultar la orden: " + e.getMessage());
+            resultadoArea.setText("Error al consultar la orden: " + e.getMessage());
         }
     }
 
-    // permite eliminar una orden
-    private static void eliminarOrden() {
-        int numeroOrden = Integer.parseInt(JOptionPane.showInputDialog("Ingrese el número de orden a eliminar:"));
+    private void eliminarOrden() {
+        int numeroOrden = Integer.parseInt(numeroOrdenField.getText());
 
         try (Connection conexion = DriverManager.getConnection(url, usuario, contrasena)) {
             String consultaSQL = "{CALL eliminar_orden(?)}";
@@ -145,22 +165,23 @@ public class Orden {
 
             int filasAfectadas = llamada.executeUpdate();
             if (filasAfectadas > 0) {
-                JOptionPane.showMessageDialog(null, "Orden con número " + numeroOrden + " eliminada correctamente.");
+                resultadoArea.setText("Orden con número " + numeroOrden + " eliminada correctamente.");
             } else {
-                JOptionPane.showMessageDialog(null, "No se encontró una orden con el número: " + numeroOrden);
+                resultadoArea.setText("No se encontró una orden con el número: " + numeroOrden);
             }
+
             llamada.close();
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Error al eliminar la orden: " + e.getMessage());
+            resultadoArea.setText("Error al eliminar la orden: " + e.getMessage());
         }
     }
 
-    private static void actualizarOrden() {
-        int numeroOrden = Integer.parseInt(JOptionPane.showInputDialog("Ingrese el número de la orden a actualizar:"));
-        String cedula = JOptionPane.showInputDialog("Ingrese la nueva cédula:");
-        String codigo = JOptionPane.showInputDialog("Ingrese el nuevo código:");
-        int idPaquete = Integer.parseInt(JOptionPane.showInputDialog("Ingrese el nuevo ID del paquete:"));
-        String precio = JOptionPane.showInputDialog("Ingrese el nuevo precio:");
+    private void actualizarOrden() {
+        int numeroOrden = Integer.parseInt(numeroOrdenField.getText());
+        String cedula = cedulaField.getText();
+        String codigo = codigoField.getText();
+        int idPaquete = Integer.parseInt(idPaqueteField.getText());
+        String precio = precioField.getText();
 
         try (Connection conexion = DriverManager.getConnection(url, usuario, contrasena)) {
             String consultaSQL = "{CALL update_orden(?, ?, ?, ?, ?)}";
@@ -173,18 +194,52 @@ public class Orden {
 
             int filasAfectadas = llamada.executeUpdate();
             if (filasAfectadas > 0) {
-                JOptionPane.showMessageDialog(null, "Orden con número " + numeroOrden + " actualizada correctamente.");
+                resultadoArea.setText("Orden con número " + numeroOrden + " actualizada correctamente.");
             } else {
-                JOptionPane.showMessageDialog(null, "No se encontró una orden con el número: " + numeroOrden);
+                resultadoArea.setText("No se encontró una orden con el número: " + numeroOrden);
             }
+
             llamada.close();
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Error al actualizar la orden: " + e.getMessage());
+            resultadoArea.setText("Error al actualizar la orden: " + e.getMessage());
         }
     }
 
-    public void setVisible(boolean b) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setVisible'");
+    private void mostrarOrdenes() {
+        try (Connection conexion = DriverManager.getConnection(url, usuario, contrasena)) {
+            String consultaSQL = "{CALL mostrar_ordenes()}";
+            CallableStatement llamada = conexion.prepareCall(consultaSQL);
+
+            ResultSet resultado = llamada.executeQuery();
+            StringBuilder sb = new StringBuilder();
+            while (resultado.next()) {
+                sb.append(String.format(
+                        "Número Orden: %d | Cédula: %s | Código: %s | ID Paquete: %d | Precio: %s | Fecha: %s | Hora: %s\n",
+                        resultado.getInt("numero_orden"),
+                        resultado.getString("cedula"),
+                        resultado.getString("codigo"),
+                        resultado.getInt("id_paquete"),
+                        resultado.getString("precio"),
+                        resultado.getString("fecha"),
+                        resultado.getString("hora")));
+            }
+
+            resultadoArea.setText(sb.toString());
+            resultado.close();
+            llamada.close();
+        } catch (SQLException e) {
+            resultadoArea.setText("Error al mostrar las órdenes: " + e.getMessage());
+        }
+    }
+
+    public static void main(String[] args) {
+        EventQueue.invokeLater(() -> {
+            try {
+                Orden frame = new Orden();
+                frame.setVisible(true);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 }
