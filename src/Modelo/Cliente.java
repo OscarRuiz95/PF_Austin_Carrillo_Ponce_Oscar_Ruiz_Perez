@@ -1,95 +1,115 @@
 package Modelo;
 
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+
+import Controlador.Panel1;
+
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.*;
 
 public class Cliente extends JFrame {
 
-    private static final String url = "jdbc:mysql://localhost:3306/verdureria";
-    private static final String usuario = "root";
-    private static final String contrasena = "208240625";
+    private static String url = "jdbc:mysql://localhost:3306/verdureria"; // URL de la base de datos
+    private static String usuario = "root"; // Usuario de la base de datos
+    private static String contrasena = "208240625"; // Contraseña de la base de datos
 
+    private JPanel Principal;
     private JTextField cedulaField, nombre1Field, nombre2Field, apellido1Field, apellido2Field, telefonoField;
     private JTextArea resultadoArea;
-    private JButton insertarButton, consultarButton, eliminarButton, actualizarButton;
 
+    // Constructor de la clase PanelCliente
     public Cliente() {
         setTitle("Gestión de Clientes");
-        setSize(500, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setBounds(100, 100, 600, 500);
+        
+        Principal = new JPanel();
+        Principal.setBackground(new Color(46, 46, 46));
+        Principal.setBorder(new EmptyBorder(5, 5, 5, 5));
+        setContentPane(Principal);
+        Principal.setLayout(null);
+
+        // Centrar la ventana en la pantalla
         setLocationRelativeTo(null);
 
-        JPanel inputPanel = new JPanel(new GridLayout(7, 2));
-        inputPanel.add(new JLabel("Cédula:"));
+        // Configuración de campos y etiquetas
+        JLabel lblBienvenidos = new JLabel("Bienvenido al Registro de Clientes");
+        lblBienvenidos.setBounds(180, 10, 300, 30);
+        lblBienvenidos.setForeground(Color.WHITE);
+        lblBienvenidos.setFont(new Font("Arial", Font.BOLD, 18));
+        Principal.add(lblBienvenidos);
+
+        // Campos de texto y etiquetas
         cedulaField = new JTextField();
-        inputPanel.add(cedulaField);
-
-        inputPanel.add(new JLabel("Nombre 1:"));
         nombre1Field = new JTextField();
-        inputPanel.add(nombre1Field);
-
-        inputPanel.add(new JLabel("Nombre 2:"));
         nombre2Field = new JTextField();
-        inputPanel.add(nombre2Field);
-
-        inputPanel.add(new JLabel("Apellido 1:"));
         apellido1Field = new JTextField();
-        inputPanel.add(apellido1Field);
-
-        inputPanel.add(new JLabel("Apellido 2:"));
         apellido2Field = new JTextField();
-        inputPanel.add(apellido2Field);
-
-        inputPanel.add(new JLabel("Teléfono:"));
         telefonoField = new JTextField();
-        inputPanel.add(telefonoField);
 
-        insertarButton = new JButton("Insertar Cliente");
-        consultarButton = new JButton("Consultar Cliente");
-        eliminarButton = new JButton("Eliminar Cliente");
-        actualizarButton = new JButton("Actualizar Cliente");
+        agregarLabelYCampo("Cédula:", cedulaField, 50);
+        agregarLabelYCampo("Nombre 1:", nombre1Field, 90);
+        agregarLabelYCampo("Nombre 2:", nombre2Field, 130);
+        agregarLabelYCampo("Apellido 1:", apellido1Field, 170);
+        agregarLabelYCampo("Apellido 2:", apellido2Field, 210);
+        agregarLabelYCampo("Teléfono:", telefonoField, 250);
 
-        JPanel buttonPanel = new JPanel(new GridLayout(1, 4));
-        buttonPanel.add(insertarButton);
-        buttonPanel.add(consultarButton);
-        buttonPanel.add(eliminarButton);
-        buttonPanel.add(actualizarButton);
+        // Botones de acción
+        JButton btnIngresar = crearBoton("Ingresar Cliente", 370, 50, e -> insertarCliente());
+        JButton btnConsultar = crearBoton("Consultar Cliente", 370, 90, e -> consultarCliente());
+        JButton btnEliminar = crearBoton("Eliminar Cliente", 370, 130, e -> eliminarCliente());
+        JButton btnActualizar = crearBoton("Actualizar Cliente", 370, 170, e -> actualizarCliente());
+        JButton btnMostrar = crearBoton("Mostrar Clientes", 370, 210, e -> mostrarClientes());
 
-        resultadoArea = new JTextArea(8, 30);
+        Principal.add(btnIngresar);
+        Principal.add(btnConsultar);
+        Principal.add(btnEliminar);
+        Principal.add(btnActualizar);
+        Principal.add(btnMostrar);
+
+        // Botón para regresar al Panel1
+        JButton btnRegresar = crearBoton("Regresar", 370, 250, e -> regresarPanel1());
+        Principal.add(btnRegresar);
+
+        // Área de resultados
+        resultadoArea = new JTextArea();
         resultadoArea.setEditable(false);
         JScrollPane scrollPane = new JScrollPane(resultadoArea);
+        scrollPane.setBounds(50, 290, 500, 200);
+        Principal.add(scrollPane);
+    }
 
-        add(inputPanel, BorderLayout.NORTH);
-        add(buttonPanel, BorderLayout.CENTER);
-        add(scrollPane, BorderLayout.SOUTH);
+    private JButton crearBoton(String texto, int x, int y, ActionListener action) {
+        JButton boton = new JButton(texto);
+        boton.setBackground(new Color(38, 81, 255));
+        boton.setForeground(Color.WHITE);
+        boton.setFont(new Font("Arial", Font.BOLD, 12));
+        boton.setBounds(x, y, 150, 30);
+        boton.addActionListener(action);
+        return boton;
+    }
 
-        // Action Listeners
-        insertarButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                insertarCliente();
-            }
-        });
+    private void agregarLabelYCampo(String labelText, JTextField textField, int y) {
+        JLabel label = new JLabel(labelText);
+        label.setForeground(Color.WHITE);
+        label.setBounds(50, y, 100, 25);
+        Principal.add(label);
 
-        consultarButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                consultarCliente();
-            }
-        });
+        textField.setBounds(150, y, 150, 25);
+        Principal.add(textField);
+    }
 
-        eliminarButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                eliminarCliente();
-            }
-        });
-
-        actualizarButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                actualizarCliente();
-            }
-        });
+    // Método para regresar al Panel1
+    private void regresarPanel1() {
+        new Panel1().setVisible(true); // Muestra el Panel1
+        this.dispose(); // Cierra el PanelCliente actual
     }
 
     private void insertarCliente() {
@@ -100,7 +120,7 @@ public class Cliente extends JFrame {
         String apellido2 = apellido2Field.getText();
         String telefono = telefonoField.getText();
 
-        try (Connection conexion = DriverManager.getConnection(url, usuario, contrasena)) {
+        try (Connection conexion = getConnection()) {
             String consultaSQL = "{CALL insertar_cliente(?, ?, ?, ?, ?, ?)}";
             CallableStatement llamada = conexion.prepareCall(consultaSQL);
             llamada.setString(1, cedula);
@@ -121,7 +141,7 @@ public class Cliente extends JFrame {
     private void consultarCliente() {
         String cedula = cedulaField.getText();
 
-        try (Connection conexion = DriverManager.getConnection(url, usuario, contrasena)) {
+        try (Connection conexion = getConnection()) {
             String consultaSQL = "{CALL consultar_cliente(?)}";
             CallableStatement llamada = conexion.prepareCall(consultaSQL);
             llamada.setString(1, cedula);
@@ -150,14 +170,14 @@ public class Cliente extends JFrame {
     private void eliminarCliente() {
         String cedula = cedulaField.getText();
 
-        try (Connection conexion = DriverManager.getConnection(url, usuario, contrasena)) {
+        try (Connection conexion = getConnection()) {
             String consultaSQL = "{CALL eliminar_cliente(?)}";
             CallableStatement llamada = conexion.prepareCall(consultaSQL);
             llamada.setString(1, cedula);
 
             int filasAfectadas = llamada.executeUpdate();
             if (filasAfectadas > 0) {
-                resultadoArea.setText("Cliente con cédula " + cedula + " eliminado correctamente.");
+                resultadoArea.setText("Cliente eliminado correctamente.");
             } else {
                 resultadoArea.setText("No se encontró un cliente con la cédula: " + cedula);
             }
@@ -175,7 +195,7 @@ public class Cliente extends JFrame {
         String apellido2 = apellido2Field.getText();
         String telefono = telefonoField.getText();
 
-        try (Connection conexion = DriverManager.getConnection(url, usuario, contrasena)) {
+        try (Connection conexion = getConnection()) {
             String consultaSQL = "{CALL update_cliente(?, ?, ?, ?, ?, ?)}";
             CallableStatement llamada = conexion.prepareCall(consultaSQL);
             llamada.setString(1, cedula);
@@ -187,7 +207,7 @@ public class Cliente extends JFrame {
 
             int filasAfectadas = llamada.executeUpdate();
             if (filasAfectadas > 0) {
-                resultadoArea.setText("Cliente con cédula " + cedula + " actualizado correctamente.");
+                resultadoArea.setText("Cliente actualizado correctamente.");
             } else {
                 resultadoArea.setText("No se encontró un cliente con la cédula: " + cedula);
             }
@@ -197,10 +217,43 @@ public class Cliente extends JFrame {
         }
     }
 
+    private void mostrarClientes() {
+        try (Connection conexion = getConnection()) {
+            String consultaSQL = "SELECT * FROM clientes";
+            PreparedStatement consulta = conexion.prepareStatement(consultaSQL);
+            ResultSet resultado = consulta.executeQuery();
+
+            StringBuilder sb = new StringBuilder();
+            while (resultado.next()) {
+                sb.append(String.format("Cédula: %s | Nombre: %s %s | Apellido: %s %s | Teléfono: %s\n",
+                        resultado.getString("cedula"),
+                        resultado.getString("nombre1"),
+                        resultado.getString("nombre2"),
+                        resultado.getString("apellido1"),
+                        resultado.getString("apellido2"),
+                        resultado.getString("telefono")));
+            }
+            resultadoArea.setText(sb.toString());
+            resultado.close();
+            consulta.close();
+        } catch (SQLException e) {
+            resultadoArea.setText("Error al mostrar clientes: " + e.getMessage());
+        }
+    }
+    
+    // Método de conexión
+    public static Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(url, usuario, contrasena);
+    }
+
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            Cliente frame = new Cliente();
-            frame.setVisible(true);
+        EventQueue.invokeLater(() -> {
+            try {
+                Cliente frame = new Cliente();
+                frame.setVisible(true);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         });
     }
 }

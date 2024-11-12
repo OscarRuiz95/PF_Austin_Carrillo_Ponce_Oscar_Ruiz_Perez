@@ -57,7 +57,7 @@ public class Panel1 extends JFrame {
         btnCliente.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 // Instancia la clase PanelCliente y muestra su ventana
-                PanelCliente panelCliente = new PanelCliente();
+                Cliente panelCliente = new Cliente();
                 panelCliente.setVisible(true);
             }
         });
